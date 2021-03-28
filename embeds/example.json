@@ -1,0 +1,32 @@
+{
+  "title": "title",
+  "description": "description",
+  "url": "https://discordapp.com",
+  "color": "#097aeb",
+  "timestamp": "2021-03-28T21:52:07.968Z",
+  "footer": {
+    "icon_url": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "text": "footer text"
+  },
+  "thumbnail": {
+    "url": "https://cdn.discordapp.com/embed/avatars/0.png"
+  },
+  "image": {
+    "url": "https://cdn.discordapp.com/embed/avatars/0.png"
+  },
+  "author": {
+    "name": "author name",
+    "url": "https://discordapp.com",
+    "icon_url": "https://cdn.discordapp.com/embed/avatars/0.png"
+  },
+  "fields": [
+    {
+      "name": "field title 1",
+      "value": "field description 1"
+    },
+    {
+      "name": "field title 2",
+      "value": "field description 2"
+    }
+  ]
+}

@@ -3,8 +3,6 @@ from discord import Embed
 from utils import not_self, error_message, module_help
 from json import load, dump
 
-from debug_utils import print_exception
-
 class To_Do(commands.Cog):
     def help_message(self):
         return """Keep tracks of things that you need to do.
@@ -18,22 +16,19 @@ class To_Do(commands.Cog):
     @not_self()
     async def todo(self, ctx):
         try:
-            try:
-                args = ctx.message.content.split(' ', 1)[1]
-            except IndexError:
-                return await module_help(ctx.channel, self)
-            todo_dict = self.get_todo_dict()
-            sub = args.split()[0].lower()
-            if sub == 'add':
-                await self.add(ctx.message, args, todo_dict)
-            elif sub == 'list':
-                await self.list(ctx.message, args, todo_dict)
-            elif sub == 'remove':
-                await self.remove(ctx.message, args, todo_dict)
-            else:
-                await error_message(message.channel, "Invalid arguments")
-        except Exception as e:
-            print_exception(e)
+            args = ctx.message.content.split(' ', 1)[1]
+        except IndexError:
+            return await module_help(ctx.channel, self)
+        todo_dict = self.get_todo_dict()
+        sub = args.split()[0].lower()
+        if sub == 'add':
+            await self.add(ctx.message, args, todo_dict)
+        elif sub == 'list':
+            await self.list(ctx.message, args, todo_dict)
+        elif sub == 'remove':
+            await self.remove(ctx.message, args, todo_dict)
+        else:
+            await error_message(message.channel, "Invalid arguments")
     async def add(self, message, args, dict):
         try:
             arg = args.split(' ', 1)[1].replace('\n\n', '\n')

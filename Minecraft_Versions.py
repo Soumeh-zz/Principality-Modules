@@ -5,8 +5,6 @@ from json import loads
 from lxml import html
 from utils import not_self, error_message
 
-from debug_utils import print_exception
-
 class Minecraft_Versions(commands.Cog):
     def help_message(self):
         return """Get information about Minecraft's latest releases.
@@ -18,17 +16,14 @@ class Minecraft_Versions(commands.Cog):
     @not_self()
     async def mcversion(self, ctx):
         try:
-            try:
-                args = ctx.message.content.split(' ', 1)[1]
-                sub = args.split()[0].lower()
-                if sub == 'latest':
-                    await self.post_version(ctx.channel)
-                else:
-                    await self.post_version(ctx.channel, args)
-            except IndexError:
+            args = ctx.message.content.split(' ', 1)[1]
+            sub = args.split()[0].lower()
+            if sub == 'latest':
                 await self.post_version(ctx.channel)
-        except Exception as e:
-            print_exception(e)
+            else:
+                await self.post_version(ctx.channel, args)
+        except IndexError:
+            await self.post_version(ctx.channel)
     async def post_version(self, channel, version=None):
         link = await self.generate_link(version)
         tree = await self.link_to_html(link)

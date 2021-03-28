@@ -2,8 +2,6 @@ from discord.ext import commands
 from start import prefix
 from utils import not_self, module_help, error_message, random_message, embed_message
 
-from debug_utils import print_exception
-
 class Random_Message(commands.Cog):
     def help_message(self):
         return """Returns a random message from a channel.

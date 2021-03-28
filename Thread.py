@@ -4,8 +4,6 @@ from discord import Embed, HTTPException
 from utils import not_self, module_help
 from json import load, dump
 
-from debug_utils import print_exception
-
 class Thread(commands.Cog):
 
     def __init__(self):
@@ -57,8 +55,6 @@ class Thread(commands.Cog):
                 await module_help(ctx.channel, 'Thread', self.help_message())
         except IndexError:
             await module_help(ctx.channel, 'Thread', self.help_message())
-        except Exception as e:
-            print_exception(e)
 
     def get_id(self):
         if 'id' not in os.listdir('modules/threads'):

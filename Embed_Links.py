@@ -2,7 +2,6 @@ from discord import NotFound
 from discord.ext import commands
 from utils import not_self, embed_message
 from start import prefix
-from debug_utils import print_exception
 
 class Embed_Links(commands.Cog):
     def help_message(self):

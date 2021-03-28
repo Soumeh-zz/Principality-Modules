@@ -17,6 +17,5 @@ class Profile_Picture(commands.Cog):
             member = ctx.author
         if not member:
             return await error_message(ctx.channel, "Unknown member")
-        embed = Embed(description="<@{}>'s Profile Picture:".format(member.id))
-        embed.set_image(url=member.avatar_url)
+        embed = Embed(description="<@{}>'s Profile Picture:".format(member.id)).set_image(url=member.avatar_url)
         await ctx.channel.send(embed=embed)

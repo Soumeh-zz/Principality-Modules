@@ -3,7 +3,6 @@ from discord.ext import commands
 from utils import get_embed_from_json, not_self, error_message, module_help
 from json import loads, JSONDecodeError
 from aiohttp import ClientSession, InvalidURL
-from debug_utils import print_exception
 
 class Custom_Embeds(commands.Cog):
     def help_message(self):

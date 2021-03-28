@@ -91,21 +91,20 @@ class Submissions(commands.Cog):
     @commands.command()
     @not_self()
     async def close(self, ctx):
-        try:
-            if ctx.channel.name == 'submission-discussion':
-                if ctx.channel.permissions_for(ctx.author).administrator:
-                    overwrites = ctx.channel.overwrites
-                    for key, value in overwrites.items():
-                        if isinstance(key, Member):
-                            author = key
-                            break
-                    overwrites = {
-                        ctx.guild.default_role: PermissionOverwrite(read_messages=False),
-                        author: PermissionOverwrite(read_messages=True, send_messages=False, add_reactions=False),
-                        self.admin_role: PermissionOverwrite(read_messages=True, send_messages=True, add_reactions=True)
-                    }
-                    embed = Embed(title="This discussion has been closed.", color=0x4F71C6)
-                    await ctx.channel.send(embed=embed)
-                    await ctx.channel.edit(name=ctx.channel.name + '-' + str(author.id), category=self.archived_submissions_category, overwrites=overwrites, sync_permissions=True)
-        except Exception as e:
-            print(e)
+        if ctx.channel.name != 'submission-discussion':
+            return
+        if not ctx.channel.permissions_for(ctx.author).administrator:
+            return
+        overwrites = ctx.channel.overwrites
+        for key, value in overwrites.items():
+            if isinstance(key, Member):
+                author = key
+                break
+        overwrites = {
+            ctx.guild.default_role: PermissionOverwrite(read_messages=False),
+            author: PermissionOverwrite(read_messages=True, send_messages=False, add_reactions=False),
+            self.admin_role: PermissionOverwrite(read_messages=True, send_messages=True, add_reactions=True)
+        }
+        embed = Embed(title="This discussion has been closed.", color=0x4F71C6)
+        await ctx.channel.send(embed=embed)
+        await ctx.channel.edit(name=ctx.channel.name + '-' + str(author.id), category=self.archived_submissions_category, overwrites=overwrites, sync_permissions=True)

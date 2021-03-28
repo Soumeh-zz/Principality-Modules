@@ -4,6 +4,7 @@ from utils import not_self, url_to_file, error_message, module_help
 from io import BytesIO
 from PIL import Image
 from math import ceil
+from debug_utils import print_exception
 
 class Pixel(commands.Cog):
     def help_message(self):
@@ -16,13 +17,18 @@ class Pixel(commands.Cog):
     @not_self()
     async def pixel(self, ctx):
         try:
-            attachment = ctx.message.attachments[0]
+            if ctx.message.reference:
+                attachment = ctx.message.reference.resolved.attachments[0]
+            else:
+                attachment = ctx.message.attachments[0]
             if attachment.filename.rsplit('.')[1] not in ['png', 'jpg', 'jpeg']:
                 raise IndexError
-            file = await url_to_file(attachment.proxy_url)
-            image = Image.open(file)
         except IndexError:
             return await error_message(ctx.channel, "You must attach an image with this command")
+        except Exception as e:
+            print_exception(e)
+        file = await url_to_file(attachment.proxy_url)
+        image = Image.open(file)
         try:
             args = ctx.message.content.split(' ', 1)[1].split()
             sub = args[0].lower()
@@ -55,10 +61,9 @@ class Pixel(commands.Cog):
         file.seek(0)
         return file
     async def info(self, channel, image, filename):
-        res = image.size
-        upscale = ceil(128 / max(res))
+        upscale = ceil(128 / max(image.size))
         image = image.resize((image.width * upscale, image.height * upscale), Image.NEAREST)
-        desc = "Resolution: **{}**".format('x'.join([str(i) for i in res]))
+        desc = "Resolution: **{}**".format('x'.join([str(i) for i in image.size]))
         desc += '\n' + "Total Color Count: **{}**".format(len(image.getcolors()))
         embed = Embed(title="Information:", description=desc)
         file = BytesIO()

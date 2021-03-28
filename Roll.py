@@ -2,7 +2,6 @@ from discord.ext import commands
 from discord import Embed
 from random import choice
 from utils import not_self, error_message, module_help
-from debug_utils import print_exception
 
 class Roll(commands.Cog):
     def help_message(self):
