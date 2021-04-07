@@ -1,27 +1,26 @@
 from discord.ext import commands
 from discord.errors import Forbidden
-from start import prefix
-from utils import not_self, embed_message
+from utils import not_self, embed_message, get_config
 from re import sub
 from json import load
 
 class Chat_Moderation(commands.Cog):
-
-    # Config
-    mod_messages_channel = 802584493843546132 # where to send notifications about moderation
-    moderated_servers = [802577295960571907]
-    moderated_channels = [802993783692066836, 802584493843546132] # set to '*' for every channel to be moderated
-    unmoderated_channels = [802584493843546132]
-    default_name = 'Charlie' # renames a member if they have a blacklisted name
-
-    # Config End
     def __init__(self):
+        default_config = """
+mod_messages_channel = 1234567891234567891 # where to send notifications about moderation
+moderated_channels = [1234567891234567891, 2345678912345678912] # set to "*" for every channel to be moderated
+unmoderated_channels = [1234567891234567891]
+default_name = "Charlie" # renames a member if they have a blacklisted name
+        """
+        self.config = get_config(self, default_config)
+        self.moderated_channels = self.config['moderated_channels']
+        self.unmoderated_channels = self.config['unmoderated_channels']
         if isinstance(self.moderated_channels, list):
             [self.moderated_channels.pop(self.moderated_channels.index(channel)) for channel in self.unmoderated_channels if channel in self.moderated_channels]
         with open('modules/blacklists/blacklist.json', 'r') as blacklist_json:
             self.blacklist = load(blacklist_json)
     async def __asinit__(self):
-        self.mod_messages_channel = await self.bot.fetch_channel(self.mod_messages_channel)
+        self.mod_messages_channel = await self.bot.fetch_channel(self.config['mod_messages_channel'])
     def help_message(self):
         return """Moderates content sent by members.
 \> Deletes blacklisted words.
@@ -46,7 +45,7 @@ class Chat_Moderation(commands.Cog):
         if self.is_blacklisted(member.name):
             member_copy = member
             try:
-                await member.edit(nick=self.default_name)
+                await member.edit(nick=self.config['default_name'])
             except Forbidden:
                 pass
             await self.warning('username', user)
