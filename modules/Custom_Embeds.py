@@ -3,6 +3,7 @@ from discord.ext import commands
 from utils import get_embed_from_json, not_self, error_message, module_help
 from json import loads, JSONDecodeError
 from aiohttp import ClientSession, InvalidURL
+from shlex import split
 
 class Custom_Embeds(commands.Cog):
     def help_message(self):
@@ -10,7 +11,9 @@ class Custom_Embeds(commands.Cog):
 `{0} link (url)`
 \> Embed from an URL that links to raw JSON string.
 `{0} file (file)`
-\> Eembed from a .json file inside of 'modules/embeds'.
+\> Embed from a .json file inside of 'modules/embeds'.
+`{0} server (id) "[description]" [invite_link]`
+\> Server embed from the server ID.
 `{0} (json)`
 \> Embed from the input as a JSON string.""".format(self.prefix + 'embed')
     @commands.command()
@@ -35,7 +38,7 @@ class Custom_Embeds(commands.Cog):
                 async with ClientSession() as session:
                     async with session.get(url) as resp:
                         json = await resp.text()
-                        menu_list = loads(json)
+                        embed_list = loads(json)
             except InvalidURL:
                 return await error_message(ctx.channel, "Invalid URL '{}'".format(url))
             except JSONDecodeError as exception:
@@ -50,26 +53,57 @@ class Custom_Embeds(commands.Cog):
             try:
                 with open('modules/embeds/' + file) as file:
                     try:
-                        menu_list = loads(file.read())
+                        embed_list = loads(file.read())
                     except JSONDecodeError as exception:
                         return await error_message(ctx.channel, exception)
             except FileNotFoundError:
                 return await error_message(ctx.channel, "Couldn't find file '{}'".format(file))
+        elif sub == 'server':
+            args = split(args)
+            try:
+                server_id = args[1]
+            except IndexError:
+                return await error_message(ctx.channel, "No arguments.")
+            try:
+                description = arg[2]
+            except IndexError:
+                description = ''
+            try:
+                invite_link = arg[3]
+            except IndexError:
+                invite_link = ''
+                
+            server = bot.fetch_guild(server_id)
+            json = {
+                "author": {
+                    "name": server.owner.name,
+                    "icon_url": server.owner.icon_url
+                },
+                "title": server.name,
+                "thumbnail": {"url": server.icon_url},
+                "footer": {"text": invite_link}
+            }
+            if server.splash_url:
+                json['image'] = server.splash_url
+            if description:
+                json['description'] = description
+            if invite_link:
+                json['title'] = "[{}]({})".format(server.name, invite_link),
+                json['author']['url'] = "https://discord.com/users/{}".format(server.owner.id)
+                json['footer']['text'] = invite_link
+            embed_list = [json]
         else:
             if args.lstrip(' \t\r\n').startswith('```json') and args.endswith('```'):
                 args = args.split('```json', 1)[1].rsplit('```', 1)[0]
             try:
-                menu_list = loads(args)
+                embed_list = loads(args)
             except JSONDecodeError as exception:
                 return await error_message(ctx.channel, "JSON Error: " + str(exception))
-        await self.post_menu(ctx, menu_list)
-
-    async def post_menu(self, ctx, menu_list):
         # convert all content to messages
-        if not isinstance(menu_list, list):
-            menu_list = [menu_list]
+        if not isinstance(embed_list, list):
+            embed_list = [embed_list]
         menu_dict = {}
-        for content in menu_list:
+        for content in embed_list:
             if not content:
                 await ctx.channel.send('\u200b')
                 continue

@@ -62,10 +62,13 @@ class Pixel(commands.Cog):
         return file
     async def info(self, channel, image, filename):
         upscale = ceil(128 / max(image.size))
-        image = image.resize((image.width * upscale, image.height * upscale), Image.NEAREST)
         desc = "Resolution: **{}**".format('x'.join([str(i) for i in image.size]))
-        desc += '\n' + "Total Color Count: **{}**".format(len(image.getcolors()))
+        color_count = len(image.getcolors())
+        if image.info.get("transparency", -1) != -1:
+            color_count -= 1
+        desc += '\n' + "Total Color Count: **{}**".format(color_count)
         embed = Embed(title="Information:", description=desc)
+        image = image.resize((image.width * upscale, image.height * upscale), Image.NEAREST)
         file = BytesIO()
         image.save(file, 'png')
         file.seek(0)
